@@ -2,6 +2,7 @@
 using CodePlus.API.Models.Domain;
 using CodePlus.API.Models.Dto;
 using CodePlus.API.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,6 +21,7 @@ namespace CodePlus.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Writer")]
         public async Task<IActionResult> CreateCategory(CreateCategoryRequestDto request)
         {
             var category = new Category
@@ -34,7 +36,7 @@ namespace CodePlus.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
+        [HttpGet]        
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryRepository.GetAllAsync();
@@ -58,6 +60,50 @@ namespace CodePlus.API.Controllers
             };
             return Ok(response);
         }
+
+        [HttpPut]
+        [Route("{id:Guid}")]
+        [Authorize(Roles = "Writer")]
+        public async Task<IActionResult> EditCategory(Guid id, UpdateCategoryRequestDto request)
+        {
+            var category = new Category
+            {
+                Id = id,
+                Name = request.Name,
+                UrlHandle = request.UrlHandle
+            };
+            category = await _categoryRepository.UpdateAsync(category);
+            var response = new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                UrlHandle = category.UrlHandle
+            };
+            return Ok(response);
+        }
+
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        [Authorize(Roles = "Writer")]
+        public async Task<IActionResult> DeleteCategory(Guid id)
+        {
+            var category = await _categoryRepository.DeleteAsync(id);
+
+            if(category is null)
+            {
+                return NotFound();
+            }
+            var response = new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                UrlHandle = category.UrlHandle
+            };
+            return Ok(response);
+        }
+
+
+
 
     }
 }

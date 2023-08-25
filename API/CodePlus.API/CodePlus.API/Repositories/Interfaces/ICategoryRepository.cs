@@ -9,5 +9,8 @@ namespace CodePlus.API.Repositories.Interfaces
         Task<IEnumerable<Category>> GetAllAsync();
 
         Task<Category> GetById(Guid id);
+        Task<Category> UpdateAsync(Category category);
+
+        Task<Category> DeleteAsync(Guid id);
     }
 }
